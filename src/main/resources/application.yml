@@ -10,11 +10,18 @@ spring:
     restart:
       additional-paths: classpath:prompts/
       enabled: true
-# 临时注释掉，便于大家开发调试和部署（实际填写 PgVector 数据库信息）
-#  datasource:
-#    url: xxx
-#    username: root
-#    password: 123456
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/agent?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 3000
   ai:
     dashscope:
       # 需要替换为你自己的 key
@@ -42,6 +49,13 @@ spring:
 #        dimensions: 1536
 #        distance-type: COSINE_DISTANCE
 #        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
+
+# jwt 配置
+jwt:
+  secret: tiantian-yuai-agent-jwt-secret-key-2026
+  access-token-expiration: 900000     # 15分钟
+  refresh-token-expiration: 604800000 # 7天
+
 server:
   port: 8123
   servlet:

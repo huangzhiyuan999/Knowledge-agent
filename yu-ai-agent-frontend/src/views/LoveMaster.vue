@@ -3,7 +3,10 @@
     <div class="header">
       <div class="back-button" @click="goBack">返回</div>
       <h1 class="title">AI恋爱大师</h1>
-      <div class="chat-id">会话ID: {{ chatId }}</div>
+      <div class="user-area">
+        <span class="user-name">admin</span>
+        <button class="logout-btn" @click="handleLogout">退出</button>
+      </div>
     </div>
     
     <div class="content-wrapper">
@@ -51,6 +54,12 @@ const messages = ref([])
 const chatId = ref('')
 const connectionStatus = ref('disconnected')
 let eventSource = null
+
+const handleLogout = () => {
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  router.push('/login')
+}
 
 // 生成随机会话ID
 const generateChatId = () => {
@@ -130,6 +139,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .love-master-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -172,9 +182,27 @@ onBeforeUnmount(() => {
   margin: 0;
 }
 
-.chat-id {
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-name {
   font-size: 14px;
-  opacity: 0.8;
+  opacity: 0.9;
+}
+.logout-btn {
+  padding: 4px 12px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.logout-btn:hover {
+  background: rgba(255,255,255,0.15);
 }
 
 .content-wrapper {

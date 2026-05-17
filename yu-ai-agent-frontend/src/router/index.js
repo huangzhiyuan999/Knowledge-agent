@@ -2,6 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/Login.vue'),
+    meta: { title: '登录 - 天天AI超级智能体' }
+  },
+  {
     path: '/',
     name: 'Home',
     component: () => import('../views/Home.vue'),
@@ -35,13 +41,20 @@ const router = createRouter({
   routes
 })
 
-// 全局导航守卫，设置文档标题
+// 不需要登录的页面
+const publicPages = ['/login']
+
 router.beforeEach((to, from, next) => {
   // 设置页面标题
   if (to.meta.title) {
     document.title = to.meta.title
   }
+  // 登录校验
+  const token = localStorage.getItem('access_token')
+  if (!publicPages.includes(to.path) && !token) {
+    return next('/login')
+  }
   next()
 })
 
-export default router 
+export default router

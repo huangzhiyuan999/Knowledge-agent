@@ -1,6 +1,13 @@
 <template>
   <div class="home-container">
     <div class="header">
+      <div class="header-top">
+        <div></div>
+        <div class="user-area">
+          <span class="user-name">admin</span>
+          <button class="logout-btn" @click="handleLogout">退出</button>
+        </div>
+      </div>
       <div class="glitch-wrapper">
         <h1 class="glitch-title">天天AI超级智能体</h1>
       </div>
@@ -71,6 +78,12 @@ const router = useRouter()
 const navigateTo = (path) => {
   router.push(path)
 }
+
+const handleLogout = () => {
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -87,6 +100,7 @@ const navigateTo = (path) => {
 }
 
 .home-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -106,6 +120,38 @@ const navigateTo = (path) => {
   background-color: transparent;
   position: relative;
   z-index: 2;
+}
+.header-top {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  left: 24px;
+}
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-name {
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+}
+.logout-btn {
+  padding: 4px 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.logout-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
 }
 
 .glitch-wrapper {

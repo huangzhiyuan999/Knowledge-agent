@@ -3,7 +3,10 @@
     <div class="header">
       <div class="back-button" @click="goBack">返回</div>
       <h1 class="title">AI超级智能体</h1>
-      <div class="placeholder"></div>
+      <div class="user-area">
+        <span class="user-name">admin</span>
+        <button class="logout-btn" @click="handleLogout">退出</button>
+      </div>
     </div>
     
     <div class="content-wrapper">
@@ -50,6 +53,12 @@ const router = useRouter()
 const messages = ref([])
 const connectionStatus = ref('disconnected')
 let eventSource = null
+
+const handleLogout = () => {
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  router.push('/login')
+}
 
 // 添加消息到列表
 const addMessage = (content, isUser, type = '') => {
@@ -177,6 +186,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .super-agent-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -222,9 +232,28 @@ onBeforeUnmount(() => {
   justify-self: center;
 }
 
-.placeholder {
-  width: 1px;
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   justify-self: end;
+}
+.user-name {
+  font-size: 14px;
+  opacity: 0.9;
+}
+.logout-btn {
+  padding: 4px 12px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.logout-btn:hover {
+  background: rgba(255,255,255,0.15);
 }
 
 .content-wrapper {
