@@ -6,6 +6,10 @@ spring:
     name: yu-ai-agent
   profiles:
     active: local
+  devtools:
+    restart:
+      additional-paths: classpath:prompts/
+      enabled: true
 # 临时注释掉，便于大家开发调试和部署（实际填写 PgVector 数据库信息）
 #  datasource:
 #    url: xxx
