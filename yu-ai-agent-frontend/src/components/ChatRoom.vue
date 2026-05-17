@@ -42,8 +42,9 @@
           class="input-box"
           :disabled="connectionStatus === 'connecting'"
         ></textarea>
-        <button 
-          @click="sendMessage" 
+        <button class="clear-btn" @click="emit('clear-history')" title="清除对话历史">🗑</button>
+        <button
+          @click="sendMessage"
           class="send-button"
           :disabled="connectionStatus === 'connecting' || !inputMessage.trim()"
         >发送</button>
@@ -71,7 +72,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['send-message'])
+const emit = defineEmits(['send-message', 'clear-history'])
 
 const inputMessage = ref('')
 const messagesContainer = ref(null)
@@ -279,7 +280,7 @@ onMounted(() => {
 }
 
 .send-button {
-  margin-left: 12px;
+  margin-left: 8px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -290,6 +291,24 @@ onMounted(() => {
   transition: background-color 0.3s;
   height: 40px;
   align-self: center;
+}
+
+.clear-btn {
+  margin-left: 8px;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 0 12px;
+  font-size: 16px;
+  cursor: pointer;
+  height: 40px;
+  align-self: center;
+  transition: all 0.2s;
+  line-height: 40px;
+}
+.clear-btn:hover {
+  border-color: #ff6b8b;
+  background: #fff0f0;
 }
 
 .send-button:hover:not(:disabled) {

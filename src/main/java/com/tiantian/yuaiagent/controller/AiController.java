@@ -1,19 +1,22 @@
 package com.tiantian.yuaiagent.controller;
 
 import com.tiantian.yuaiagent.agent.YuManus;
+import com.tiantian.yuaiagent.annotation.RequireAuth;
 import com.tiantian.yuaiagent.app.LoveApp;
+import com.tiantian.yuaiagent.service.RedisChatMemoryService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/ai")
@@ -28,78 +31,67 @@ public class AiController {
     @Resource
     private ChatModel dashscopeChatModel;
 
-    /**
-     * 同步调用 AI 恋爱大师应用
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
+    @Resource
+    private RedisChatMemoryService redisChatMemoryService;
+
     @GetMapping("/love_app/chat/sync")
-    public String doChatWithLoveAppSync(String message, String chatId) {
-        return loveApp.doChat(message, chatId);
+    @RequireAuth
+    public String doChatWithLoveAppSync(String message, HttpServletRequest request) {
+        return loveApp.doChat(message, (String) request.getAttribute("userId"));
     }
 
-    /**
-     * SSE 流式调用 AI 恋爱大师应用
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
     @GetMapping(value = "/love_app/chat/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> doChatWithLoveAppSSE(String message, String chatId) {
-        return loveApp.doChatByStream(message, chatId);
+    public Flux<String> doChatWithLoveAppSSE(String message, HttpServletRequest request) {
+        return loveApp.doChatByStream(message, (String) request.getAttribute("userId"));
     }
 
-    /**
-     * SSE 流式调用 AI 恋爱大师应用
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
     @GetMapping(value = "/love_app/chat/server_sent_event")
-    public Flux<ServerSentEvent<String>> doChatWithLoveAppServerSentEvent(String message, String chatId) {
-        return loveApp.doChatByStream(message, chatId)
-                .map(chunk -> ServerSentEvent.<String>builder()
-                        .data(chunk)
-                        .build());
+    public Flux<ServerSentEvent<String>> doChatWithLoveAppServerSentEvent(String message, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return loveApp.doChatByStream(message, userId)
+                .map(chunk -> ServerSentEvent.<String>builder().data(chunk).build());
     }
 
-    /**
-     * SSE 流式调用 AI 恋爱大师应用
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
     @GetMapping(value = "/love_app/chat/sse_emitter")
-    public SseEmitter doChatWithLoveAppServerSseEmitter(String message, String chatId) {
-        // 创建一个超时时间较长的 SseEmitter
-        SseEmitter sseEmitter = new SseEmitter(180000L); // 3 分钟超时
-        // 获取 Flux 响应式数据流并且直接通过订阅推送给 SseEmitter
-        loveApp.doChatByStream(message, chatId)
+    public SseEmitter doChatWithLoveAppServerSseEmitter(String message, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        SseEmitter sseEmitter = new SseEmitter(180000L);
+        loveApp.doChatByStream(message, userId)
                 .subscribe(chunk -> {
-                    try {
-                        sseEmitter.send(chunk);
-                    } catch (IOException e) {
-                        sseEmitter.completeWithError(e);
-                    }
+                    try { sseEmitter.send(chunk); }
+                    catch (IOException e) { sseEmitter.completeWithError(e); }
                 }, sseEmitter::completeWithError, sseEmitter::complete);
-        // 返回
         return sseEmitter;
     }
 
-    /**
-     * 流式调用 Manus 超级智能体
-     *
-     * @param message
-     * @return
-     */
     @GetMapping("/manus/chat")
-    public SseEmitter doChatWithManus(String message) {
+    public SseEmitter doChatWithManus(String message, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         YuManus yuManus = new YuManus(allTools, dashscopeChatModel);
-        return yuManus.runStream(message);
+
+        // 加载历史对话
+        for (var record : redisChatMemoryService.getRecent(userId, "agent")) {
+            if ("user".equals(record.getRole())) {
+                yuManus.getMessageList().add(new org.springframework.ai.chat.messages.UserMessage(record.getContent()));
+            } else {
+                yuManus.getMessageList().add(new org.springframework.ai.chat.messages.AssistantMessage(record.getContent()));
+            }
+        }
+        // 前置保存，确保用户消息不丢失
+        redisChatMemoryService.save(userId, "agent", message, "执行中");
+
+        SseEmitter emitter = yuManus.runStream(message);
+        emitter.onCompletion(() ->
+                redisChatMemoryService.save(userId, "agent", message, "执行完成"));
+        return emitter;
+    }
+
+    @PostMapping("/context/clear")
+    @RequireAuth
+    public ResponseEntity<Map<String, Object>> clearContext(String scene, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        if (scene == null || scene.isBlank()) scene = "love";
+        redisChatMemoryService.clear(userId, scene);
+        return ResponseEntity.ok(Map.of("message", "对话历史已清除"));
     }
 }

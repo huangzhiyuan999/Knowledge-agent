@@ -1,19 +1,17 @@
 package com.tiantian.yuaiagent.app;
 
 import com.tiantian.yuaiagent.advisor.MyLoggerAdvisor;
-import com.tiantian.yuaiagent.advisor.ReReadingAdvisor;
-import com.tiantian.yuaiagent.chatmemory.FileBasedChatMemory;
-import com.tiantian.yuaiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.tiantian.yuaiagent.rag.QueryRewriter;
+import com.tiantian.yuaiagent.service.RedisChatMemoryService;
 import jakarta.annotation.Resource;
+import org.springframework.ai.chat.memory.ChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -26,10 +24,9 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import java.util.List;
 
 @Component
 @Slf4j
@@ -37,13 +34,10 @@ public class LoveApp {
 
     private final ChatClient chatClient;
     private final String baseSystemPrompt;
+    private final RedisChatMemoryService redisChatMemoryService;
 
-    /**
-     * 初始化 ChatClient
-     *
-     * @param dashscopeChatModel
-     */
-    public LoveApp(ChatModel dashscopeChatModel) {
+    public LoveApp(ChatModel dashscopeChatModel, RedisChatMemoryService redisChatMemoryService) {
+        this.redisChatMemoryService = redisChatMemoryService;
         // 从模板加载系统提示词
         String basePrompt;
         try {
@@ -62,59 +56,67 @@ public class LoveApp {
                 "language", "中文",
                 "userName", "用户"
         ));
-//        // 初始化基于文件的对话记忆
-//        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
-//        ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
-        // 初始化基于内存的对话记忆
-        MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
-                .chatMemoryRepository(new InMemoryChatMemoryRepository())
-                .maxMessages(20)
-                .build();
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(baseSystemPrompt)
-                .defaultAdvisors(
-                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        // 自定义日志 Advisor，可按需开启
-                        new MyLoggerAdvisor()
-//                        // 自定义推理增强 Advisor，可按需开启
-//                       ,new ReReadingAdvisor()
-                )
+                .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
     }
 
     /**
-     * AI 基础对话（支持多轮对话记忆）
-     *
-     * @param message
-     * @param chatId
-     * @return
+     * AI 基础对话（Redis ZSet 记忆）
      */
-    public String doChat(String message, String chatId) {
+    public String doChat(String message, String userId) {
+        List<RedisChatMemoryService.ChatRecord> history = redisChatMemoryService.getRecent(userId, "love");
+        List<Message> messages = new ArrayList<>();
+        for (var record : history) {
+            if ("user".equals(record.getRole())) {
+                messages.add(new UserMessage(record.getContent()));
+            } else {
+                messages.add(new AssistantMessage(record.getContent()));
+            }
+        }
+
         ChatResponse chatResponse = chatClient
                 .prompt()
+                .messages(messages)
                 .user(message)
-                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: {}", content);
+
+        redisChatMemoryService.save(userId, "love", message, content);
         return content;
     }
 
     /**
-     * AI 基础对话（支持多轮对话记忆，SSE 流式传输）
-     *
-     * @param message
-     * @param chatId
-     * @return
+     * AI 基础对话（SSE 流式，Redis ZSet 记忆）
      */
-    public Flux<String> doChatByStream(String message, String chatId) {
-        return chatClient
+    public Flux<String> doChatByStream(String message, String userId) {
+        List<RedisChatMemoryService.ChatRecord> history = redisChatMemoryService.getRecent(userId, "love");
+        List<Message> messages = new ArrayList<>();
+        for (var record : history) {
+            if ("user".equals(record.getRole())) {
+                messages.add(new UserMessage(record.getContent()));
+            } else {
+                messages.add(new AssistantMessage(record.getContent()));
+            }
+        }
+
+        Flux<String> contentFlux = chatClient
                 .prompt()
+                .messages(messages)
                 .user(message)
-                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream()
                 .content();
+
+        StringBuilder sb = new StringBuilder();
+        return contentFlux
+                .doOnNext(sb::append)
+                .doOnComplete(() -> {
+                    redisChatMemoryService.save(userId, "love", message, sb.toString());
+                    log.info("流式对话已保存到 Redis");
+                });
     }
 
     record LoveReport(String title, List<String> suggestions) {

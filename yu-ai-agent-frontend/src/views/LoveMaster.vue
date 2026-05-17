@@ -11,11 +11,12 @@
     
     <div class="content-wrapper">
       <div class="chat-area">
-        <ChatRoom 
-          :messages="messages" 
+        <ChatRoom
+          :messages="messages"
           :connection-status="connectionStatus"
           ai-type="love"
           @send-message="sendMessage"
+          @clear-history="handleClearHistory"
         />
       </div>
     </div>
@@ -32,7 +33,7 @@ import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import ChatRoom from '../components/ChatRoom.vue'
 import AppFooter from '../components/AppFooter.vue'
-import { chatWithLoveApp } from '../api'
+import { chatWithLoveApp, clearChatContext } from '../api'
 
 // 设置页面标题和元数据
 useHead({
@@ -59,6 +60,17 @@ const handleLogout = () => {
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
   router.push('/login')
+}
+
+const handleClearHistory = async () => {
+  try {
+    await clearChatContext()
+    messages.value = []
+    chatId.value = generateChatId()
+    addMessage('对话历史已清除，有什么新的问题吗？', false)
+  } catch (e) {
+    console.error('清除失败', e)
+  }
 }
 
 // 生成随机会话ID

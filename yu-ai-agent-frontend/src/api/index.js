@@ -82,7 +82,13 @@ export const chatWithManus = (message) => {
   return connectSSE('/ai/manus/chat', { message })
 }
 
+// 清除对话历史
+export const clearChatContext = (scene = 'love') => {
+  return request.post('/ai/context/clear', null, { params: { scene } })
+}
+
 export default {
   chatWithLoveApp,
-  chatWithManus
+  chatWithManus,
+  clearChatContext
 }

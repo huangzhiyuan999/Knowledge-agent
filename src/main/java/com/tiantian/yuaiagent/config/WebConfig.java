@@ -19,7 +19,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // 路径不包含 context-path（/api），Spring 自动处理
         registry.addInterceptor(authInterceptor)
-                .addPathPatterns("/api/ai/**");
+                .addPathPatterns("/ai/**");
     }
 }
