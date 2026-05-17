@@ -53,7 +53,7 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.yupi.yuaiagent.controller
+      packages-to-scan: com.tiantian.yuaiagent.controller
 # knife4j config
 knife4j:
   enable: true
