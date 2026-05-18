@@ -4,8 +4,8 @@
     <div class="chat-messages" ref="messagesContainer">
       <div v-for="(msg, index) in messages" :key="index" class="message-wrapper">
         <!-- AI消息 -->
-        <div v-if="!msg.isUser" 
-             class="message ai-message" 
+        <div v-if="!msg.isUser"
+             class="message ai-message"
              :class="[msg.type]">
           <div class="avatar ai-avatar">
             <AiAvatarFallback :type="aiType" />
@@ -18,7 +18,7 @@
             <div class="message-time">{{ formatTime(msg.time) }}</div>
           </div>
         </div>
-        
+
         <!-- 用户消息 -->
         <div v-else class="message user-message" :class="[msg.type]">
           <div class="message-bubble">
@@ -35,14 +35,14 @@
     <!-- 输入区域 -->
     <div class="chat-input-container">
       <div class="chat-input">
-        <textarea 
-          v-model="inputMessage" 
+        <button class="clear-btn" @click="emit('clear-history')" title="清除对话历史">🗑</button>
+        <textarea
+          v-model="inputMessage"
           @keydown.enter.prevent="sendMessage"
-          placeholder="请输入消息..." 
+          placeholder="请输入消息..."
           class="input-box"
           :disabled="connectionStatus === 'connecting'"
         ></textarea>
-        <button class="clear-btn" @click="emit('clear-history')" title="清除对话历史">🗑</button>
         <button
           @click="sendMessage"
           class="send-button"
@@ -79,15 +79,15 @@ const messagesContainer = ref(null)
 
 // 根据AI类型选择不同头像
 const aiAvatar = computed(() => {
-  return props.aiType === 'love' 
-    ? '/ai-love-avatar.png'  // 恋爱大师头像
-    : '/ai-super-avatar.png' // 超级智能体头像
+  return props.aiType === 'love'
+    ? '/ai-love-avatar.png'
+    : '/ai-super-avatar.png'
 })
 
 // 发送消息
 const sendMessage = () => {
   if (!inputMessage.value.trim()) return
-  
+
   emit('send-message', inputMessage.value)
   inputMessage.value = ''
 }
@@ -136,14 +136,14 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 16px;
-  padding-bottom: 80px; /* 为输入框留出空间 */
+  padding-bottom: 80px;
   display: flex;
   flex-direction: column;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 72px; /* 与输入框高度相匹配 */
+  bottom: 72px;
 }
 
 .message-wrapper {
@@ -161,12 +161,12 @@ onMounted(() => {
 }
 
 .user-message {
-  margin-left: auto; /* 用户消息靠右 */
-  flex-direction: row; /* 正常顺序，先气泡后头像 */
+  margin-left: auto;
+  flex-direction: row;
 }
 
 .ai-message {
-  margin-right: auto; /* AI消息靠左 */
+  margin-right: auto;
 }
 
 .avatar {
@@ -181,11 +181,11 @@ onMounted(() => {
 }
 
 .user-avatar {
-  margin-left: 8px; /* 用户头像在右侧，左边距 */
+  margin-left: 8px;
 }
 
 .ai-avatar {
-  margin-right: 8px; /* AI头像在左侧，右边距 */
+  margin-right: 8px;
 }
 
 .avatar-placeholder {
@@ -204,7 +204,7 @@ onMounted(() => {
   border-radius: 18px;
   position: relative;
   word-wrap: break-word;
-  min-width: 100px; /* 最小宽度 */
+  min-width: 100px;
 }
 
 .user-message .message-bubble {
@@ -242,7 +242,7 @@ onMounted(() => {
   background-color: white;
   border-top: 1px solid #e0e0e0;
   z-index: 100;
-  height: 72px; /* 固定高度 */
+  height: 72px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -262,15 +262,14 @@ onMounted(() => {
   font-size: 16px;
   resize: none;
   min-height: 20px;
-  max-height: 40px; /* 限制高度 */
+  max-height: 40px;
   outline: none;
   transition: border-color 0.3s;
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* 隐藏Webkit浏览器的滚动条 */
 .input-box::-webkit-scrollbar {
   display: none;
 }
@@ -280,7 +279,7 @@ onMounted(() => {
 }
 
 .send-button {
-  margin-left: 8px;
+  margin-left: 12px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -294,9 +293,9 @@ onMounted(() => {
 }
 
 .clear-btn {
-  margin-left: 8px;
+  margin-right: 8px;
   background: transparent;
-  border: 1px solid #ddd;
+  border: 1px solid #ffb3b3;
   border-radius: 20px;
   padding: 0 12px;
   font-size: 16px;
@@ -305,9 +304,10 @@ onMounted(() => {
   align-self: center;
   transition: all 0.2s;
   line-height: 40px;
+  color: #ff6b6b;
 }
 .clear-btn:hover {
-  border-color: #ff6b8b;
+  border-color: #ff6b6b;
   background: #fff0f0;
 }
 
@@ -332,80 +332,25 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
-  .message {
-    max-width: 95%;
-  }
-  
-  .message-content {
-    font-size: 15px;
-  }
-  
-  .chat-input {
-    padding: 12px;
-  }
-  
-  .input-box {
-    padding: 8px 12px;
-  }
-  
-  .send-button {
-    padding: 0 15px;
-    font-size: 14px;
-  }
+  .message { max-width: 95%; }
+  .message-content { font-size: 15px; }
+  .chat-input { padding: 12px; }
+  .input-box { padding: 8px 12px; }
+  .send-button { padding: 0 15px; font-size: 14px; }
 }
 
 @media (max-width: 480px) {
-  .avatar {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .message-bubble {
-    padding: 10px;
-  }
-  
-  .message-content {
-    font-size: 14px;
-  }
-  
-  .chat-input-container {
-    height: 64px;
-  }
-  
-  .chat-messages {
-    bottom: 64px;
-  }
+  .avatar { width: 32px; height: 32px; }
+  .message-bubble { padding: 10px; }
+  .message-content { font-size: 14px; }
+  .chat-input-container { height: 64px; }
+  .chat-messages { bottom: 64px; }
 }
 
-/* 新增：不同类型消息的样式 */
-.ai-answer {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.ai-final {
-  /* 最终回答，可以有不同的样式，例如边框高亮等 */
-}
-
-.ai-error {
-  opacity: 0.7;
-}
-
-.user-question {
-  /* 用户提问的特殊样式 */
-}
-
-/* 连续消息气泡样式 */
-.ai-message + .ai-message {
-  margin-top: 4px;
-}
-
-.ai-message + .ai-message .avatar {
-  visibility: hidden;
-}
-
-.ai-message + .ai-message .message-bubble {
-  border-top-left-radius: 10px;
-}
-</style> 
+.ai-answer { animation: fadeIn 0.3s ease-in-out; }
+.ai-error { opacity: 0.7; }
+.ai-message + .ai-message { margin-top: 4px; }
+.ai-message + .ai-message .avatar { visibility: hidden; }
+.ai-message + .ai-message .message-bubble { border-top-left-radius: 10px; }
+</style>
