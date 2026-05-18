@@ -13,7 +13,7 @@ const routes = [
     component: () => import('../views/Home.vue'),
     meta: {
       title: '首页 - 天天AI超级智能体应用平台',
-      description: '天天AI超级智能体应用平台提供AI恋爱大师和AI超级智能体服务，满足您的各种AI对话需求'
+      description: '天天AI超级智能体应用平台提供知识库问答和AI超级智能体服务，满足您的各种AI问答需求'
     }
   },
   {
@@ -21,8 +21,8 @@ const routes = [
     name: 'LoveMaster',
     component: () => import('../views/LoveMaster.vue'),
     meta: {
-      title: 'AI恋爱大师 - 天天AI超级智能体应用平台',
-      description: 'AI恋爱大师是天天AI超级智能体应用平台的专业情感顾问，帮你解答各种恋爱问题，提供情感建议'
+      title: '知识库问答 - 天天AI超级智能体应用平台',
+      description: '知识库问答是天天AI超级智能体应用平台的智能问答助手，基于知识库快速解答你的问题'
     }
   },
   {
@@ -41,15 +41,12 @@ const router = createRouter({
   routes
 })
 
-// 不需要登录的页面
 const publicPages = ['/login']
 
 router.beforeEach((to, from, next) => {
-  // 设置页面标题
   if (to.meta.title) {
     document.title = to.meta.title
   }
-  // 登录校验
   const token = localStorage.getItem('access_token')
   if (!publicPages.includes(to.path) && !token) {
     return next('/login')

@@ -2,7 +2,7 @@
   <div class="love-master-container">
     <div class="header">
       <div class="back-button" @click="goBack">返回</div>
-      <h1 class="title">AI恋爱大师</h1>
+      <h1 class="title">知识库问答</h1>
       <div class="user-area">
         <span class="user-name">admin</span>
         <button class="logout-btn" @click="handleLogout">退出</button>
@@ -37,15 +37,15 @@ import { chatWithLoveApp, clearChatContext } from '../api'
 
 // 设置页面标题和元数据
 useHead({
-  title: 'AI恋爱大师 - 天天AI超级智能体应用平台',
+  title: '知识库问答 - 天天AI超级智能体应用平台',
   meta: [
     {
       name: 'description',
-      content: 'AI恋爱大师是天天AI超级智能体应用平台的专业情感顾问，帮你解答各种恋爱问题，提供情感建议'
+      content: '知识库问答是天天AI超级智能体应用平台的智能问答助手，基于知识库快速解答你的问题'
     },
     {
       name: 'keywords',
-      content: 'AI恋爱大师,情感顾问,恋爱咨询,AI聊天,情感问题,AI智能体'
+      content: '知识库问答,智能问答,AI知识库,知识检索,AI智能体'
     }
   ]
 })
@@ -138,7 +138,7 @@ onMounted(() => {
   chatId.value = generateChatId()
   
   // 添加欢迎消息
-  addMessage('欢迎来到AI恋爱大师，请告诉我你的恋爱问题，我会尽力给予帮助和建议。', false)
+  addMessage('欢迎来到知识库问答，请提出你的问题。', false)
 })
 
 // 组件销毁前关闭SSE连接

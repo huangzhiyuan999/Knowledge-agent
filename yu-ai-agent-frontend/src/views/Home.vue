@@ -20,8 +20,8 @@
         <div class="card-glow"></div>
         <div class="app-icon love-icon">❤️</div>
         <div class="app-info">
-          <div class="app-title">AI恋爱大师</div>
-          <div class="app-desc">智能情感顾问，帮你解答恋爱烦恼</div>
+          <div class="app-title">知识库问答</div>
+          <div class="app-desc">基于知识库的智能问答，帮你快速找到答案</div>
         </div>
         <div class="app-button">
           <span class="btn-text">立即体验</span>

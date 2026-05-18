@@ -83,7 +83,7 @@ export const chatWithManus = (message) => {
 }
 
 // 清除对话历史
-export const clearChatContext = (scene = 'love') => {
+export const clearChatContext = (scene = 'knowledge') => {
   return request.post('/ai/context/clear', null, { params: { scene } })
 }
 

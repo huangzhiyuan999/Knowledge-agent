@@ -2,7 +2,7 @@ package com.tiantian.yuaiagent.controller;
 
 import com.tiantian.yuaiagent.agent.YuManus;
 import com.tiantian.yuaiagent.annotation.RequireAuth;
-import com.tiantian.yuaiagent.app.LoveApp;
+import com.tiantian.yuaiagent.app.KnowledgeApp;
 import com.tiantian.yuaiagent.service.RedisChatMemoryService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class AiController {
 
     @Resource
-    private LoveApp loveApp;
+    private KnowledgeApp knowledgeApp;
 
     @Resource
     private ToolCallback[] allTools;
@@ -37,18 +37,18 @@ public class AiController {
     @GetMapping("/love_app/chat/sync")
     @RequireAuth
     public String doChatWithLoveAppSync(String message, HttpServletRequest request) {
-        return loveApp.doChat(message, (String) request.getAttribute("userId"));
+        return knowledgeApp.doChat(message, (String) request.getAttribute("userId"));
     }
 
     @GetMapping(value = "/love_app/chat/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> doChatWithLoveAppSSE(String message, HttpServletRequest request) {
-        return loveApp.doChatByStream(message, (String) request.getAttribute("userId"));
+        return knowledgeApp.doChatByStream(message, (String) request.getAttribute("userId"));
     }
 
     @GetMapping(value = "/love_app/chat/server_sent_event")
     public Flux<ServerSentEvent<String>> doChatWithLoveAppServerSentEvent(String message, HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
-        return loveApp.doChatByStream(message, userId)
+        return knowledgeApp.doChatByStream(message, userId)
                 .map(chunk -> ServerSentEvent.<String>builder().data(chunk).build());
     }
 
@@ -56,7 +56,7 @@ public class AiController {
     public SseEmitter doChatWithLoveAppServerSseEmitter(String message, HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
         SseEmitter sseEmitter = new SseEmitter(180000L);
-        loveApp.doChatByStream(message, userId)
+        knowledgeApp.doChatByStream(message, userId)
                 .subscribe(chunk -> {
                     try { sseEmitter.send(chunk); }
                     catch (IOException e) { sseEmitter.completeWithError(e); }
