@@ -72,7 +72,7 @@ export const connectSSE = (url, params, onMessage, onError) => {
   return eventSource
 }
 
-// AI恋爱大师聊天
+// AI知识库聊天
 export const chatWithLoveApp = (message, chatId) => {
   return connectSSE('/ai/love_app/chat/sse', { message, chatId })
 }

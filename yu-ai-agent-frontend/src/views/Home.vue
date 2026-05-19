@@ -64,11 +64,11 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: '天天AI超级智能体应用平台提供AI恋爱大师和AI超级智能体服务，满足您的各种AI对话需求'
+      content: '天天AI超级智能体应用平台提供AI知识库问答和AI超级智能体服务，满足您的各种AI对话需求'
     },
     {
       name: 'keywords',
-      content: 'AI智能体,AI应用,AI恋爱大师,AI助手,智能对话,AI超级智能体,首页'
+      content: 'AI智能体,AI应用,AI知识库问答,AI助手,智能对话,AI超级智能体,首页'
     }
   ]
 })

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 基于 Redis ZSet 的对话记忆服务
  * - Key: user:chat:context:{userId}:{scene}
- * - scene: love(恋爱大师) / agent(超级智能体)
+ * - scene: love(知识库) / agent(超级智能体)
  */
 @Service
 public class RedisChatMemoryService {
