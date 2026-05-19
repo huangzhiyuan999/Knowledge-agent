@@ -1,0 +1,12 @@
+Latest AI News Summary (May 16, 2026):
+
+1. "The haves and have nots of the AI gold rush" - This article examines the growing divide between AI companies that have access to massive resources and those that don't, highlighting how funding and infrastructure disparities are shaping the industry.
+
+2. "Research repository ArXiv will ban authors for a year if they let AI do all the work" - ArXiv, a major academic preprint server, has announced strict new policies against AI-generated research papers, implementing one-year bans for authors who submit work entirely created by AI without proper human oversight.
+
+3. "OpenAI co-founder Greg Brockman reportedly takes charge of product strategy" - Greg Brockman, OpenAI's president and co-founder, has taken on increased responsibility for the company's product direction, signaling potential shifts in their development priorities.
+
+Additional notable AI stories:
+- Osaurus brings both local and cloud AI models to Mac computers
+- Snowflake CEO discusses why the company is no longer just a data warehouse
+- Musk's xAI is running nearly 50 gas turbines unchecked at its Mississippi data center

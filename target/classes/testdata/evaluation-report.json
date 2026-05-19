@@ -1,0 +1,95 @@
+{
+    "eval_date": "2026-05-18",
+    "total_questions": 8,
+    "recall_metrics": {
+        "hit_rate": 0.75,
+        "mrr": 0.4375
+    },
+    "generation_metrics": {
+        "context_relevance_avg": 1,
+        "factual_accuracy_avg": 1,
+        "completeness_avg": 1
+    },
+    "details": [
+        {
+            "id": "q001",
+            "hit": true,
+            "hit_rank": 1,
+            "mrr": 1,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q002",
+            "hit": true,
+            "hit_rank": 2,
+            "mrr": 0.5,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q003",
+            "hit": true,
+            "hit_rank": 3,
+            "mrr": 0.3333333333333333,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q004",
+            "hit": true,
+            "hit_rank": 3,
+            "mrr": 0.3333333333333333,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q005",
+            "hit": false,
+            "hit_rank": 0,
+            "mrr": 0,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q006",
+            "hit": false,
+            "hit_rank": 0,
+            "mrr": 0,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q007",
+            "hit": true,
+            "hit_rank": 1,
+            "mrr": 1,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        },
+        {
+            "id": "q008",
+            "hit": true,
+            "hit_rank": 3,
+            "mrr": 0.3333333333333333,
+            "retrieved_count": 3,
+            "context_relevance": 1,
+            "factual_accuracy": 1,
+            "completeness": 1
+        }
+    ]
+}
