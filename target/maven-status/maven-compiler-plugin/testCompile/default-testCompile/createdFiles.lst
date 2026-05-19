@@ -1,8 +1,0 @@
-com\tiantian\yuaiagent\tools\TerminalOperationToolTest.class
-com\tiantian\yuaiagent\agent\YuManusTest.class
-com\tiantian\yuaiagent\tools\WebScrapingToolTest.class
-com\tiantian\yuaiagent\YuAiAgentApplicationTests.class
-com\tiantian\yuaiagent\tools\PDFGenerationToolTest.class
-com\tiantian\yuaiagent\tools\ResourceDownloadToolTest.class
-com\tiantian\yuaiagent\tools\WebSearchToolTest.class
-com\tiantian\yuaiagent\tools\FileOperationToolTest.class
