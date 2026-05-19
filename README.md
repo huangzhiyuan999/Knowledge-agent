@@ -1,190 +1,83 @@
-# 天天AI超级智能体应用平台
+<div align="center">
 
-基于 Spring AI + Spring Boot 3 的 AI 智能体应用平台，包含知识库问答系统和 AI 超级智能体两大核心功能。
+<!-- 封面图 (参考你提供的小门道风格) -->
+<img src="https://www.xiaomendao.cn/assets/img/wenda.jpg" alt="个人知识库 RAG 问答系统" width="800"/>
+<br>
+<br>
 
-## 环境要求
+# 🧠 Personal-Knowledge-RAG
+### 🚀 面向个人知识管理的多模态 RAG 问答系统
 
-| 组件 | 版本要求 | 说明 |
-|------|---------|------|
-| JDK | **21** | 必须 JDK 21，支持虚拟线程 |
-| Maven | 3.8+ | 项目构建 |
-| Node.js | 16+ | 前端构建 |
-| npm | 7+ | 前端依赖管理 |
+**基于 Java 21 & Spring Boot 3 的全链路工程化实践**
 
-## 必须安装的第三方服务
+[![Java Version](https://img.shields.io/badge/Java-21-orange.svg)](https://java.com)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-red.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-| 服务 | 版本 | 用途 | 启动检查 |
-|------|------|------|---------|
-| **MySQL** | 8.0+ | 用户账号存储 | `mysql -u root -p` |
-| **Redis** | 6.0+ | JWT 双令牌 + 对话记忆 | `redis-cli ping` → PONG |
+</div>
 
-### 数据库初始化
+---
 
-```sql
--- 创建数据库（字符集 utf8mb4）
-CREATE DATABASE IF NOT EXISTS `agent` DEFAULT CHARSET utf8mb4;
+## 🌟 项目简介
 
--- 创建用户表
-CREATE TABLE IF NOT EXISTS `agent`.`user` (
-    `id`       BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `name`     VARCHAR(100) NOT NULL                COMMENT '用户名',
-    `password` VARCHAR(255) NOT NULL                COMMENT '密码',
-    `role`     TINYINT      NOT NULL DEFAULT 1       COMMENT '角色 0=管理员 1=用户',
-    `remark`   VARCHAR(500) DEFAULT NULL             COMMENT '备注信息',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+这是一个专为**个人知识管理场景**设计的高性能多模态 RAG（检索增强生成）系统。
 
--- 插入默认管理员（密码：admin123）
-INSERT INTO `agent`.`user` (`name`, `password`, `role`, `remark`)
-VALUES ('admin', 'admin123', 0, '默认管理员账号');
-```
+本项目不仅仅是一个简单的问答工具，而是围绕**离线索引、在线检索、效果测评、增量索引与缓存加速**完成了全链路的工程优化。系统支持 PDF、Markdown、图片等多种常见知识源，旨在解决私有数据与大模型结合时的“幻觉”与“延迟”痛点，显著提升个人知识场景下的问答准确率与系统响应效率。
 
-## 可选服务
+---
 
-| 服务 | 用途 | 不启动的影响 |
-|------|------|-------------|
-| Ollama | 本地大模型部署 | 不影响，默认走云端 DashScope |
-| PostgreSQL + PgVector | 生产级向量存储 | 不影响，默认用内存向量库 |
-| SearchAPI | 联网搜索工具 | AI 超级智能体的搜索功能不可用 |
+## 🚀 核心特性
 
-## API Key 申请
+### 1. 📚 多模态知识源支持
+- **文档解析**：支持 PDF (iText)、Markdown、TXT 等文本格式。
+- **视觉理解**：集成 OCR 与 VLM (Vision-Language Model)，支持图片内容的问答与检索。
 
-| 服务 | 用途 | 获取地址 |
-|------|------|---------|
-| **阿里云百炼 DashScope** | AI 大模型（必需） | https://bailian.console.aliyun.com/ |
-| **SearchAPI** | 联网搜索（可选） | https://www.searchapi.io/ |
+### 2. ⚙️ 全链路工程优化
+- **离线索引**：基于高性能批处理构建向量库。
+- **在线检索**：结合 **Chroma** 向量检索与 **BM25** 稀疏检索，实现混合搜索 (Hybrid Search)。
+- **缓存加速**：引入 Kryo 高性能序列化与多级缓存策略，降低大模型调用成本，提升响应速度。
+- **增量索引**：支持知识库的动态更新，无需全量重建。
 
-## 配置修改（拉取后必须填写）
+### 3. 🧠 智能体与工具调用
+- **ReAct Agent**：构建智能体框架，让 AI 能够自主思考与决策。
+- **Tool Calling**：支持调用外部工具（如 SearchAPI, Pexels API）扩展模型能力。
+- **MCP 协议**：基于模型上下文协议，实现模块化的上下文管理。
 
-打开 `src/main/resources/application.yml`，找到以下配置项替换：
+---
 
-```yaml
-# 1. AI 大模型 API Key（必填）
-spring:
-  ai:
-    dashscope:
-      api-key: 替换为你的阿里云百炼 Key
+## 🛠️ 技术栈
 
-# 2. MySQL 连接信息（按需修改）
-spring:
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3306/agent?useUnicode=true&characterEncoding=utf-8
-    username: root
-    password: 替换为你的 MySQL 密码
+本项目采用现代化 Java 技术栈，深度融合 AI 工程化最佳实践：
 
-# 3. Redis 连接信息（按需修改）
-spring:
-  data:
-    redis:
-      password: 替换为你的 Redis 密码
+| 模块 | 技术选型 | 说明 |
+| :--- | :--- | :--- |
+| **核心框架** | Java 21 + Spring Boot 3 | 响应式编程与现代化 Java 特性 |
+| **AI 开发** | Spring AI + LangChain4j | 统一的 AI 编程模型与组件 |
+| **向量数据库** | **PGvector** | 基于 PostgreSQL 的向量扩展，保证数据一致性 |
+| **大模型部署** | **Ollama** | 本地化大模型运行环境 |
+| **云平台** | **Serverless** + **百炼** | 弹性计算与阿里云大模型开发平台 |
+| **工具库** | Jsoup, iText, Kryo, Knife4j | 网页抓取、PDF生成、序列化、接口文档 |
 
-# 4. SearchAPI Key（可选，不用则 AI 无法联网搜索）
-search-api:
-  api-key: 替换为你的 SearchAPI Key
-```
+---
 
-## 核心技术依赖
+## 📊 效果测评与优化
 
-| 依赖 | 用途 |
-|------|------|
-| Spring Boot 3.4.4 | Web 框架 |
-| Spring AI 1.0.0 | AI 开发框架 |
-| spring-ai-alibaba / DashScope | 阿里云百炼大模型接入 |
-| spring-boot-starter-data-redis | Redis 客户端 |
-| mysql-connector-j | MySQL 驱动 |
-| jjwt (0.12.6) | JWT 双令牌认证 |
-| jieba-analysis | 中文分词（BM25 检索） |
-| Hutool 5.8.37 | 工具库 |
-| Knife4j | 接口文档 |
-| iText 9.1.0 | PDF 生成 |
-| jsoup | 网页抓取 |
+我们引入了 **RAGAS** 评估框架，对系统的**准确性 (Accuracy)**、**相关性 (Faithfulness)** 和**上下文召回率 (Context Recall)** 进行量化监控。
 
-## 启动命令
+- **检索优化**：通过调整 Chunk 大小与重排序 (Rerank) 策略，确保 Top-K 结果的精准度。
+- **Prompt 工程**：基于 ReAct 模式优化提示词，引导模型进行“思考-行动-观察”的循环。
 
-### 后端
+---
 
+## 🚀 快速开始
+
+### 1. 环境准备
+- JDK 21
+- Maven 3.8+
+- PostgreSQL (启用 PGvector 扩展)
+- Ollama (运行本地模型，如 `llama3` 或 `qwen`)
+
+### 2. 克隆与配置
 ```bash
-# 编译打包
-mvn clean package -DskipTests
-
-# 本地启动（开发）
-mvn spring-boot:run
-
-# 生产部署
-java -jar target/yu-ai-agent-0.0.1-SNAPSHOT.jar
-```
-
-### 前端
-
-```bash
-cd yu-ai-agent-frontend
-
-# 安装依赖
-npm install
-
-# 开发启动
-npm run dev
-
-# 生产构建
-npm run build
-```
-
-## 访问地址
-
-| 服务 | 地址 |
-|------|------|
-| 前端页面 | http://localhost:3000 |
-| 后端 API | http://localhost:8123/api |
-| Swagger 文档 | http://localhost:8123/api/swagger-ui.html |
-| 健康检查 | POST http://localhost:8123/api/user/login |
-
-## 登录账号
-
-```
-用户名：admin
-密码：admin123
-```
-
-## 常见启动异常
-
-| 异常 | 原因 | 解决 |
-|------|------|------|
-| `Port 8123 was already in use` | 端口被占用 | `kill` 旧进程或修改 `server.port` |
-| `Unable to connect to Redis` | Redis 未启动 | 启动 Redis 服务 |
-| `Unknown database 'agent'` | 数据库未创建 | 执行 `CREATE DATABASE agent` |
-| `Access denied for user 'root'` | MySQL 密码错误 | 检查 `application.yml` 中的 datasource 密码 |
-| `DashScope API key must be set` | AI Key 未配置 | 填写 `dashscope.api-key` |
-| `Table 'agent.user' doesn't exist` | 用户表未创建 | 执行建表 SQL |
-| `Package 'com.tiantian' not found` | JDK 版本不对 | 确认使用 JDK 21 |
-
-## 项目结构
-
-```
-src/main/java/com/tiantian/yuaiagent/
-├── agent/          ← ReAct 智能体（YuManus）
-├── app/            ← 知识库问答应用（KnowledgeApp）
-├── config/         ← 全局配置 + 拦截器
-├── controller/     ← API 接口
-├── dao/            ← 数据库访问
-├── interceptor/    ← JWT 登录拦截器
-├── model/          ← 数据实体
-├── rag/            ← RAG 检索管线
-│   ├── config/     ← 配置参数
-│   ├── loader/     ← 文档加载 + 切块
-│   ├── index/      ← BM25 + 向量索引
-│   └── retriever/  ← 改写 → 检索 → 融合排序
-├── service/        ← Redis 对话记忆
-├── util/           ← JWT 工具
-└── eval/           ← 效果测评框架
-```
-
-## RAG 管线流程
-
-```
-document/*.md → 切块(512/128) → JSON存储 + MD5增量
-  → BM25(jieba分词) + 向量(Embedding) 双路索引
-    → 用户提问 → LLM改写 → 混合检索
-      → 按源文件分组融合 → topK → 上下文拼装
-        → AI回答 → Redis记忆存储
-```
+git clone https://github.com/yourname/Personal-Knowledge-RAG.git
+cd Personal-Knowledge-RAG
