@@ -33,7 +33,7 @@ import { useRouter } from 'vue-router'
 import { useHead } from '@vueuse/head'
 import ChatRoom from '../components/ChatRoom.vue'
 import AppFooter from '../components/AppFooter.vue'
-import { chatWithLoveApp, clearChatContext } from '../api'
+import { chatWithKnowledge, clearChatContext } from '../api'
 
 // 设置页面标题和元数据
 useHead({
@@ -101,7 +101,7 @@ const sendMessage = (message) => {
   addMessage('', false)
   
   connectionStatus.value = 'connecting'
-  eventSource = chatWithLoveApp(message, chatId.value)
+  eventSource = chatWithKnowledge(message, chatId.value)
   
   // 监听SSE消息
   eventSource.onmessage = (event) => {

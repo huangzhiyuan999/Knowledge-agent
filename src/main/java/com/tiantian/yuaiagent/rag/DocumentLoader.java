@@ -17,11 +17,11 @@ import java.util.List;
  */
 @Component
 @Slf4j
-public class LoveAppDocumentLoader {
+public class DocumentLoader {
 
     private final ResourcePatternResolver resourcePatternResolver;
 
-    public LoveAppDocumentLoader(ResourcePatternResolver resourcePatternResolver) {
+    public DocumentLoader(ResourcePatternResolver resourcePatternResolver) {
         this.resourcePatternResolver = resourcePatternResolver;
     }
 

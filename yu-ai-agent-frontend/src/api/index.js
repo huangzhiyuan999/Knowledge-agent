@@ -73,7 +73,7 @@ export const connectSSE = (url, params, onMessage, onError) => {
 }
 
 // AI知识库聊天
-export const chatWithLoveApp = (message, chatId) => {
+export const chatWithKnowledge = (message, chatId) => {
   return connectSSE('/ai/love_app/chat/sse', { message, chatId })
 }
 
@@ -88,7 +88,7 @@ export const clearChatContext = (scene = 'knowledge') => {
 }
 
 export default {
-  chatWithLoveApp,
+  chatWithKnowledge,
   chatWithManus,
   clearChatContext
 }
