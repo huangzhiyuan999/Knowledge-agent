@@ -8,16 +8,13 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 网页搜索工具
  */
 public class WebSearchTool {
 
-    // SearchAPI 的搜索接口地址
     private static final String SEARCH_API_URL = "https://www.searchapi.io/api/v1/search";
 
     private final String apiKey;
@@ -35,19 +32,22 @@ public class WebSearchTool {
         paramMap.put("engine", "baidu");
         try {
             String response = HttpUtil.get(SEARCH_API_URL, paramMap);
-            // 取出返回结果的前 5 条
             JSONObject jsonObject = JSONUtil.parseObj(response);
-            // 提取 organic_results 部分
             JSONArray organicResults = jsonObject.getJSONArray("organic_results");
-            List<Object> objects = organicResults.subList(0, 5);
-            // 拼接搜索结果为字符串
-            String result = objects.stream().map(obj -> {
-                JSONObject tmpJSONObject = (JSONObject) obj;
-                return tmpJSONObject.toString();
-            }).collect(Collectors.joining(","));
-            return result;
+            if (organicResults == null || organicResults.isEmpty()) {
+                return "未找到相关结果";
+            }
+            int count = Math.min(organicResults.size(), 5);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < count; i++) {
+                JSONObject item = (JSONObject) organicResults.get(i);
+                sb.append(i + 1).append(". ").append(item.getStr("title", "")).append("\n");
+                sb.append("   链接: ").append(item.getStr("link", "")).append("\n");
+                sb.append("   摘要: ").append(item.getStr("snippet", "")).append("\n\n");
+            }
+            return sb.toString().trim();
         } catch (Exception e) {
-            return "Error searching Baidu: " + e.getMessage();
+            return "搜索失败: " + e.getMessage();
         }
     }
 }

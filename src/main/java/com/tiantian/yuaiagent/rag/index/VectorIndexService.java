@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * 稠密向量索引（语义检索）
- * 热加载时自动重建
+ * 索引与 chunkEngine.getAllChunks() 对齐，通过 originIndex 元数据映射
  */
 @Slf4j
 @Component
@@ -38,32 +38,42 @@ public class VectorIndexService {
         List<ChunkEngine.ChunkRecord> allChunks = chunkEngine.getAllChunks();
         if (allChunks.isEmpty()) { log.warn("向量索引无文档"); return; }
 
-        SimpleVectorStore store = SimpleVectorStore.builder(embeddingModel).build();
-        List<Document> docs = new ArrayList<>();
-        for (int i = 0; i < allChunks.size(); i++) {
-            String text = allChunks.get(i).getText();
-            if (text == null || text.isBlank()) continue;
-            docs.add(new Document(text, Map.of("originIndex", i)));
+        try {
+            SimpleVectorStore store = SimpleVectorStore.builder(embeddingModel).build();
+            List<Document> docs = new ArrayList<>();
+            for (int i = 0; i < allChunks.size(); i++) {
+                String text = allChunks.get(i).getText();
+                if (text == null || text.isBlank()) continue;
+                docs.add(new Document(text, Map.of("originIndex", i)));
+            }
+            if (docs.isEmpty()) { log.warn("向量索引无有效文档"); return; }
+            store.add(docs);
+            vectorStore = store;
+            log.info("向量索引构建完成，共 {} 条 Chunk", docs.size());
+        } catch (Exception e) {
+            log.warn("向量索引构建失败（不影响 BM25 检索）: {}", e.getMessage());
+            vectorStore = null;
         }
-        if (docs.isEmpty()) { log.warn("向量索引无有效文档"); return; }
-        store.add(docs);
-        vectorStore = store;
-        log.info("向量索引构建完成，共 {} 条 Chunk", docs.size());
     }
 
     public List<VectorHit> search(String query) {
         var store = vectorStore;
         if (store == null) return List.of();
-        List<Document> results = store.similaritySearch(query);
-        int topK = ragProperties.getSemanticTopK();
-        List<VectorHit> hits = new ArrayList<>();
-        for (int i = 0; i < Math.min(results.size(), topK); i++) {
-            Document doc = results.get(i);
-            Object idx = doc.getMetadata().get("originIndex");
-            if (idx == null) continue;
-            hits.add(new VectorHit((int) idx, 1.0 - (i / (double) topK), doc.getText()));
+        try {
+            List<Document> results = store.similaritySearch(query);
+            int topK = ragProperties.getSemanticTopK();
+            List<VectorHit> hits = new ArrayList<>();
+            for (int i = 0; i < Math.min(results.size(), topK); i++) {
+                Document doc = results.get(i);
+                Object idx = doc.getMetadata().get("originIndex");
+                if (idx == null) continue;
+                hits.add(new VectorHit((int) idx, 1.0 - (i / (double) topK), doc.getText()));
+            }
+            return hits;
+        } catch (Exception e) {
+            log.warn("向量检索失败: {}", e.getMessage());
+            return List.of();
         }
-        return hits;
     }
 
     public static class VectorHit {
