@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
  */
 public class TerminalOperationTool {
 
-    @Tool(description = "Execute a command in the terminal")
+    @Tool(description = "Execute a command in the Windows terminal (cmd). Use this to run scripts, check directories, or execute any command.")
     public String executeTerminalCommand(@ToolParam(description = "Command to execute in the terminal") String command) {
         StringBuilder output = new StringBuilder();
         try {

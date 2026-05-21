@@ -27,7 +27,7 @@ spring:
       api-key: sk-c7d19e947ddf45788b9677bdb22af538
       chat:
         options:
-          model: qwen-turbo
+          model: qwen-plus-2025-07-28
     ollama:
       base-url: http://localhost:11434
       chat:
