@@ -68,7 +68,7 @@ public class AiController {
         return sseEmitter;
     }
 
-    /** 超级智能体（内置工具 + MCP 工具） */
+    /** 超级智能体（无历史加载，每次独立处理） */
     @GetMapping("/manus/chat")
     public SseEmitter doChatWithManus(String message, HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
@@ -79,14 +79,6 @@ public class AiController {
         System.arraycopy(mcpTools, 0, combined, allTools.length, mcpTools.length);
 
         YuManus yuManus = new YuManus(combined, dashscopeChatModel);
-
-        for (var record : redisChatMemoryService.getRecent(userId, "agent")) {
-            if ("user".equals(record.getRole())) {
-                yuManus.getMessageList().add(new org.springframework.ai.chat.messages.UserMessage(record.getContent()));
-            } else {
-                yuManus.getMessageList().add(new org.springframework.ai.chat.messages.AssistantMessage(record.getContent()));
-            }
-        }
         redisChatMemoryService.save(userId, "agent", message, "执行中");
 
         SseEmitter emitter = yuManus.runStream(message);
