@@ -6,8 +6,10 @@ import com.tiantian.yuaiagent.app.KnowledgeApp;
 import com.tiantian.yuaiagent.service.RedisChatMemoryService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
@@ -33,6 +35,9 @@ public class AiController {
 
     @Resource
     private RedisChatMemoryService redisChatMemoryService;
+
+    @Resource
+    private ToolCallbackProvider toolCallbackProvider;
 
     @GetMapping("/love_app/chat/sync")
     @RequireAuth
@@ -64,12 +69,12 @@ public class AiController {
         return sseEmitter;
     }
 
+    /** 超级智能体（内置工具） */
     @GetMapping("/manus/chat")
     public SseEmitter doChatWithManus(String message, HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
         YuManus yuManus = new YuManus(allTools, dashscopeChatModel);
 
-        // 加载历史对话
         for (var record : redisChatMemoryService.getRecent(userId, "agent")) {
             if ("user".equals(record.getRole())) {
                 yuManus.getMessageList().add(new org.springframework.ai.chat.messages.UserMessage(record.getContent()));
@@ -77,12 +82,39 @@ public class AiController {
                 yuManus.getMessageList().add(new org.springframework.ai.chat.messages.AssistantMessage(record.getContent()));
             }
         }
-        // 前置保存，确保用户消息不丢失
         redisChatMemoryService.save(userId, "agent", message, "执行中");
 
         SseEmitter emitter = yuManus.runStream(message);
         emitter.onCompletion(() ->
                 redisChatMemoryService.save(userId, "agent", message, "执行完成"));
+        return emitter;
+    }
+
+    /** MCP 对话（自动注入 mcp-servers.json 中定义的外部工具，如高德地图） */
+    @GetMapping("/mcp/chat")
+    public SseEmitter doChatWithMcp(String message, HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        // 从 ToolCallbackProvider 获取 MCP 工具
+        ToolCallback[] mcpTools = toolCallbackProvider.getToolCallbacks();
+        // 将 MCP 工具与内置工具合并
+        ToolCallback[] combined = new ToolCallback[allTools.length + mcpTools.length];
+        System.arraycopy(allTools, 0, combined, 0, allTools.length);
+        System.arraycopy(mcpTools, 0, combined, allTools.length, mcpTools.length);
+
+        YuManus yuManus = new YuManus(combined, dashscopeChatModel);
+
+        for (var record : redisChatMemoryService.getRecent(userId, "mcp")) {
+            if ("user".equals(record.getRole())) {
+                yuManus.getMessageList().add(new org.springframework.ai.chat.messages.UserMessage(record.getContent()));
+            } else {
+                yuManus.getMessageList().add(new org.springframework.ai.chat.messages.AssistantMessage(record.getContent()));
+            }
+        }
+        redisChatMemoryService.save(userId, "mcp", message, "执行中");
+
+        SseEmitter emitter = yuManus.runStream(message);
+        emitter.onCompletion(() ->
+                redisChatMemoryService.save(userId, "mcp", message, "执行完成"));
         return emitter;
     }
 
