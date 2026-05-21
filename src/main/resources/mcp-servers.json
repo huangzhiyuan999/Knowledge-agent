@@ -2,10 +2,7 @@
   "mcpServers": {
     "amap-maps": {
       "command": "F:\\FNodejs20\\npx.cmd",
-      "args": [
-        "-y",
-        "@amap/amap-maps-mcp-server"
-      ],
+      "args": ["-y", "@amap/amap-maps-mcp-server"],
       "env": {
         "AMAP_MAPS_API_KEY": "a54afb1eed6af6efe56a516a519d0ed4"
       }

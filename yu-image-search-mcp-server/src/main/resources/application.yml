@@ -1,7 +1,10 @@
 spring:
   application:
     name: yu-image-search-mcp-server
-  profiles:
-    active: sse
-server:
-  port: 8127
+  ai:
+    mcp:
+      server:
+        stdio: true
+
+pixabay:
+  api-key: ${PIXABAY_API_KEY:YOUR_PIXABAY_API_KEY}
